@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wayfinder: Travel Itinerary Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e2233;--ink2:#17354d;--sea:#0f766e;--sea-soft:#dff1ee;--sun:#f2b134;--paper:#f5f8f9;--card:#fff;--line:#d9e2e7;--muted:#5b6f7d;--danger:#b4322a;--text:#0e2233;--field:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0b1a26;--card:#122636;--line:#25404f;--muted:#9bb0bc;--text:#e6eef2;--field:#0e202e;--sea:#2bb3a6;--sea-soft:#14403f;--danger:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0b1a26;--card:#122636;--line:#25404f;--muted:#9bb0bc;--text:#e6eef2;--field:#0e202e;--sea:#2bb3a6;--sea-soft:#14403f;--danger:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--text);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0}
+h2{font-size:2rem;letter-spacing:-.02em}h3{font-size:1.2rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);padding:.5rem .9rem;border-radius:10px}
+button:hover{border-color:var(--sea)}button:disabled{opacity:.5;cursor:wait}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.primary{background:var(--sea);border-color:var(--sea);color:#fff;font-weight:600}
+.link{border:0;background:none;padding:.2rem 0;color:var(--sea);text-decoration:underline}.danger{color:var(--danger)}
+.muted{color:var(--muted)}.small{font-size:.85rem}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:.5rem .65rem;background:var(--field);width:100%}
+label{display:flex;flex-direction:column;gap:.25rem;font-weight:600;font-size:.92rem}
+fieldset{border:0;padding:0;margin:1.2rem 0}legend{font-weight:600;font-size:.92rem;margin-bottom:.4rem}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100%}
+.rail{background:#0e2233;color:#e8f0f4;padding:1.5rem 1rem;display:flex;flex-direction:column;gap:1.5rem}
+.brand{font-size:1.5rem;color:var(--sun)}
+.rail nav{display:flex;flex-direction:column;gap:.3rem}
+.rail nav button{background:none;border:0;color:#cfdce4;text-align:left}
+.rail nav button.on,.rail nav button:hover{background:#17354d;color:#fff}
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:.4rem;align-items:flex-start}
+.rail .link{color:var(--sun)}
+.main{padding:2rem clamp(1rem,4vw,3rem);max-width:1000px;width:100%}
+.page-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1.5rem}
+.actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:2.5rem;text-align:center;display:flex;flex-direction:column;gap:.6rem;align-items:center}
+.list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.6rem}
+.list li{display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.4rem .8rem}
+.row{flex:1;border:0;background:none;text-align:left;display:flex;flex-direction:column;padding:.4rem 0}
+.amount{font-weight:700;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}.wide{grid-column:span 2}
+.seg,.chips{display:flex;flex-wrap:wrap;gap:.5rem}.seg legend,.chips legend{width:100%}
+.seg button,.chips button{text-transform:capitalize;border-radius:999px}
+.seg button.on,.chips button.on{background:#0e2233;color:#fff;border-color:#0e2233}
+.big{padding:.8rem 1.4rem;font-size:1.05rem;margin-top:1rem}
+.budget{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem;display:flex;flex-wrap:wrap;gap:.2rem 1rem;align-items:baseline;margin-bottom:1.2rem}
+.budget strong{font:700 1.5rem "Bricolage Grotesque"}.budget.over strong{color:var(--danger)}
+.bar{flex-basis:100%;height:8px;background:var(--sea-soft);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--sea);transition:width .3s}.over .bar i{background:var(--danger)}
+.tabs{display:flex;gap:.4rem;overflow-x:auto;margin-bottom:1rem;padding-bottom:.2rem}
+.tabs button{display:flex;flex-direction:column;align-items:flex-start;min-width:92px}.tabs small{color:var(--muted)}
+.tabs button.on{background:var(--sea);color:#fff;border-color:var(--sea)}.tabs button.on small{color:#d3efeb}
+.day{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.2rem}
+.day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
+.tl{list-style:none;margin:0 0 1rem;padding:0}
+.tl li{display:grid;grid-template-columns:70px 1fr 110px 90px auto;gap:.6rem;align-items:start;padding:.8rem 0 .8rem .8rem;border-bottom:1px solid var(--line);border-left:4px solid var(--line)}
+.t-food{border-left-color:var(--sun)!important}.t-attraction,.t-activity{border-left-color:var(--sea)!important}.t-stay{border-left-color:#0e2233!important}.t-transport{border-left-color:#8aa0ad!important}
+.tl input,.tl select{border-color:transparent;padding:.25rem .4rem;background:transparent}.tl input:hover,.tl select:hover,.tl input:focus{border-color:var(--line)}
+.tl .title{font-weight:600}.tl .desc{color:var(--muted)}
+.tips{margin-top:1.5rem}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0e2233;color:#fff;padding:.6rem 1.1rem;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.spin{display:inline-block;width:1em;height:1em;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:s .8s linear infinite;vertical-align:-.15em;margin-right:.4rem}
+@keyframes s{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}.bar i{transition:none}}
+@media(max-width:800px){
+.shell{grid-template-columns:1fr}.rail{flex-direction:row;align-items:center;flex-wrap:wrap;padding:.8rem}.rail nav{flex-direction:row}.rail-foot{margin:0 0 0 auto;flex-direction:row;align-items:center}
+.grid{grid-template-columns:1fr 1fr}.page-head{flex-direction:column}
+.tl li{grid-template-columns:60px 1fr}.tl select,.tl .cost,.tl .danger{grid-column:2}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <h1 class="brand">Wayfinder</h1>
+    <nav>
+      <button id="nav-trips" data-act="go-trips">My trips</button>
+      <button id="nav-new" data-act="go-new">Plan a trip</button>
+    </nav>
+    <div class="rail-foot"><span class="small" style="color:#9bb0bc">Demo mode · sample data</span><button class="link" data-act="reset">Reset demo</button></div>
+  </aside>
+  <main class="main" id="app"></main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+const KEY = "wayfinder-demo-trips";
+const today = new Date().toISOString().slice(0, 10);
+const INTERESTS = ["food","sightseeing","culture","adventure","nature","nightlife","shopping","relaxation","history"];
+const TYPES = ["attraction","food","stay","transport","activity"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const addDays = (d, n) => { const x = new Date(d + "T00:00:00"); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5) + 1;
+const money = n => Math.round(n).toLocaleString();
+const dayCost = d => d.items.reduce((s, i) => s + (Number(i.cost) || 0), 0);
+
+/* ---------- mock AI generator (the real app calls the FastAPI + Claude backend) ---------- */
+const ATTR = [
+  ["Old quarter walking loop","Lanes, courtyards and landmark facades in one easy circuit."],
+  ["Heritage fort or palace","The city’s signature landmark; arrive early for softer light."],
+  ["Sunset viewpoint","A short climb with the best panorama at golden hour."],
+  ["Central museum","A compact tour of local art and history."],
+  ["Local market stroll","Spices, crafts and street snacks in one place."],
+  ["Riverside or lakeside promenade","A calm stretch to slow down between stops."]];
+const FOOD = {
+  b:[["Neighbourhood breakfast café","Regional breakfast and strong coffee."],["Bakery and chai stop","Fresh pastries before the crowds."],["Garden brunch spot","Relaxed brunch with seasonal dishes."]],
+  l:[["Popular thali lunch","A well-reviewed local lunch, quick service."],["Street-food lunch trail","Three signature snacks, shared."],["Courtyard lunch","Shaded seating and regional classics."]],
+  d:[["Local favourite dinner","Signature dishes, mid-range prices."],["Rooftop dinner","Evening views over the old town."],["Chef-led tasting dinner","A set menu that tells the city’s story."]]};
+const ACT = {food:"Cooking class with a local host",sightseeing:"Guided city highlights tour",culture:"Craft workshop or live performance",adventure:"Half-day outdoor adventure",nature:"Garden or nature trail visit",nightlife:"Live music night out",shopping:"Artisan quarter shopping",relaxation:"Spa and unwind session",history:"Guided history walk"};
+function genDay(f, n, variant = 0) {
+  const per = f.budget / daysBetween(f.start_date, f.end_date), k = n + variant * 2;
+  const m = f.stay_level === "premium" ? 1.3 : f.stay_level === "budget" ? .7 : 1;
+  const act = f.interests.length ? f.interests[(n + variant) % f.interests.length] : "sightseeing";
+  const pick = (a, i) => a[(i % a.length + a.length) % a.length];
+  const it = (time, type, [title, description], pct) => ({time, type, title: type === "attraction" ? `${title}, ${f.destination}` : title, description, location: f.destination, cost: Math.round(per * pct)});
+  const items = [it("09:00","food",pick(FOOD.b,k),.07*m), it("10:30","attraction",pick(ATTR,k),.06), it("13:00","food",pick(FOOD.l,k),.1*m)];
+  if (f.pace !== "relaxed") items.push(it("15:00","attraction",pick(ATTR,k+1),.06));
+  items.push(it("16:30","activity",[ACT[act],"Matched to your “" + act + "” interest."],.14));
+  if (f.pace === "packed") items.push(it("18:00","attraction",pick(ATTR,k+3),.05));
+  items.push(it("19:30","food",pick(FOOD.d,k),.16*m));
+  if (n === 1) items.unshift(it("08:00","stay",[`${f.stay_level[0].toUpperCase()+f.stay_level.slice(1)} stay`,"Check in and drop your bags."],.3*m));
+  const themes = ["Arrival and old town","Landmarks and local flavour","Hidden corners","Slow day and sunsets","Markets and makers","Last bites"];
+  return {day:n, date:addDays(f.start_date,n-1), theme:themes[(n-1+variant)%themes.length], items};
+}
+function genItinerary(f) {
+  const n = daysBetween(f.start_date, f.end_date);
+  const vibe = f.traveler_type === "couple" ? "a romantic" : f.traveler_type === "group" ? "a shared" : "a focused solo";
+  return {summary:`${n}-day ${f.pace} plan for ${f.destination}: ${vibe} mix of ${(f.interests.slice(0,3).join(", ") || "highlights")}, grouped by area to cut travel time.`,
+    days: Array.from({length:n},(_,i)=>genDay(f,i+1)),
+    tips:["Book popular spots a day ahead.","Carry a local transit card and some cash.","Keep one evening flexible."]};
+}
+
+/* ---------- state ---------- */
+const seedReq = {destination:"Jaipur, India",start_date:addDays(today,14),end_date:addDays(today,16),budget:600,currency:"USD",group_size:2,traveler_type:"couple",pace:"relaxed",stay_level:"premium",interests:["food","culture","history"],notes:""};
+const seed = () => ({id:"demo1",title:"Jaipur weekend for two",request:seedReq,itinerary:genItinerary(seedReq),share:"demo-jaipur"});
+let trips; try { trips = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!Array.isArray(trips)) trips = [seed()];
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(trips)); } catch (e) {} };
+let form = {destination:"",start_date:today,end_date:addDays(today,2),budget:500,currency:"USD",group_size:1,traveler_type:"solo",pace:"balanced",stay_level:"comfort",interests:[],notes:""};
+let cur = null, active = 0, view = "trips", busy = "";
+const app = document.getElementById("app");
+
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 2600); }
+
+/* ---------- views ---------- */
+function tripsView() {
+  const spend = trips.reduce((s, t) => s + dayTotal(t.itinerary), 0);
+  if (!trips.length) return `<header class="page-head"><div><h2>My trips</h2></div></header>
+    <div class="empty"><h3>No trips yet</h3><p class="muted">Enter a destination, dates and budget. Your first itinerary takes seconds.</p><button class="primary" data-act="go-new">Plan your first trip</button></div>`;
+  return `<header class="page-head"><div><h2>My trips</h2><p class="muted">${trips.length} saved · ${money(spend)} planned spend</p></div><button class="primary" data-act="go-new">Plan a trip</button></header>
+  <ul class="list">${trips.map(t => `<li><button class="row" data-act="open" data-id="${t.id}"><strong>${esc(t.title)}</strong><span class="muted">${t.request.start_date} to ${t.request.end_date} · ${t.request.group_size} traveler(s) · ${t.request.traveler_type}</span></button><span class="amount">${t.request.currency} ${money(dayTotal(t.itinerary))}</span><button class="link danger" data-act="del" data-id="${t.id}">Delete</button></li>`).join("")}</ul>`;
+}
+const dayTotal = it => it.days.reduce((s, d) => s + dayCost(d), 0);
+
+function builderView() {
+  const f = form, on = (c) => c ? "on" : "";
+  const opt = (v, cur, label) => `<option value="${v}" ${v === cur ? "selected" : ""}>${label || v}</option>`;
+  return `<form id="builder"><header class="page-head"><div><h2>Plan a trip</h2><p class="muted">The more you tell us, the less you’ll need to edit.</p></div></header>
+  <fieldset class="seg"><legend>Who’s going</legend>${["solo","couple","group"].map(t => `<button type="button" class="${on(f.traveler_type===t)}" data-act="who" data-v="${t}">${t}</button>`).join("")}</fieldset>
+  <div class="grid">
+    <label class="wide">Destination<input required data-k="destination" value="${esc(f.destination)}" placeholder="Jaipur, India"></label>
+    <label>Start date<input type="date" required data-k="start_date" value="${f.start_date}"></label>
+    <label>End date<input type="date" required min="${f.start_date}" data-k="end_date" value="${f.end_date}"></label>
+    <label>Total budget<input type="number" min="1" required data-k="budget" value="${f.budget}"></label>
+    <label>Currency<select data-k="currency">${["USD","EUR","GBP","INR","JPY","AUD"].map(c => opt(c, f.currency)).join("")}</select></label>
+    <label>Travelers<input type="number" min="1" max="30" data-k="group_size" value="${f.group_size}"></label>
+    <label>Pace<select data-k="pace">${["relaxed","balanced","packed"].map(c => opt(c, f.pace, c[0].toUpperCase()+c.slice(1))).join("")}</select></label>
+    <label>Stay<select data-k="stay_level">${["budget","comfort","premium"].map(c => opt(c, f.stay_level, c[0].toUpperCase()+c.slice(1))).join("")}</select></label>
+  </div>
+  <fieldset class="chips"><legend>Interests</legend>${INTERESTS.map(i => `<button type="button" class="${on(f.interests.includes(i))}" aria-pressed="${f.interests.includes(i)}" data-act="interest" data-v="${i}">${i}</button>`).join("")}</fieldset>
+  <label>Anything else?<textarea rows="3" data-k="notes" placeholder="Vegetarian, avoid long walks, anniversary dinner…">${esc(f.notes)}</textarea></label>
+  <button class="primary big" ${busy ? "disabled" : ""}>${busy === "gen" ? '<span class="spin"></span>Building your itinerary…' : "Generate itinerary"}</button></form>`;
+}
+
+function tripView() {
+  const t = cur, it = t.itinerary, r = t.request, d = it.days[active], total = dayTotal(it), over = total > r.budget;
+  return `<header class="page-head"><div><button class="link" data-act="go-trips">Back to my trips</button><h2>${esc(t.title)}</h2><p class="muted">${esc(it.summary)}</p></div>
+    <div class="actions">${t.saved ? '<button data-act="share">Copy share link</button>' : ""}<button class="primary" data-act="save" ${t.saved && !t.dirty ? "disabled" : ""}>${t.saved ? "Save changes" : "Save trip"}</button></div></header>
+  <div class="budget ${over ? "over" : ""}"><span>Estimated total</span><strong>${r.currency} ${money(total)}</strong><span>of ${r.currency} ${money(r.budget)} budget${over ? " · over by " + money(total - r.budget) : ""}</span><div class="bar"><i style="width:${Math.min(100, total / r.budget * 100)}%"></i></div></div>
+  <div class="tabs" role="tablist">${it.days.map((x, i) => `<button role="tab" aria-selected="${i===active}" class="${i===active?"on":""}" data-act="tab" data-i="${i}">Day ${x.day}<small>${x.date}</small></button>`).join("")}</div>
+  <section class="day"><div class="day-head"><h3>${esc(d.theme)}</h3><div class="actions"><span class="amount">${r.currency} ${money(dayCost(d))}</span><button data-act="regen" ${busy ? "disabled" : ""}>${busy === "regen" ? "Regenerating…" : "Regenerate day"}</button></div></div>
+  <ol class="tl">${d.items.map((x, i) => `<li class="t-${x.type}">
+    <input class="time" aria-label="Time" data-f="time" data-i="${i}" value="${esc(x.time)}">
+    <div><input class="title" aria-label="Title" data-f="title" data-i="${i}" value="${esc(x.title)}"><input class="desc" aria-label="Description" data-f="description" data-i="${i}" value="${esc(x.description)}"><span class="muted small">${esc(x.location)}</span></div>
+    <select aria-label="Type" data-f="type" data-i="${i}">${TYPES.map(y => `<option ${y === x.type ? "selected" : ""}>${y}</option>`).join("")}</select>
+    <input class="cost" type="number" min="0" aria-label="Cost" data-f="cost" data-i="${i}" value="${x.cost}">
+    <button class="link danger" data-act="rm" data-i="${i}">Remove</button></li>`).join("")}</ol>
+  <button data-act="add">Add a stop</button></section>
+  <section class="tips"><h3>Good to know</h3><ul>${it.tips.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>`;
+}
+
+function render(keepFocus) {
+  document.getElementById("nav-trips").className = view === "trips" ? "on" : "";
+  document.getElementById("nav-new").className = view === "new" ? "on" : "";
+  app.innerHTML = view === "trips" ? tripsView() : view === "new" ? builderView() : tripView();
+}
+
+/* ---------- events ---------- */
+app.addEventListener("input", e => {
+  const el = e.target;
+  if (el.dataset.k) { form[el.dataset.k] = ["budget","group_size"].includes(el.dataset.k) ? Number(el.value) : el.value; return; }
+  if (el.dataset.f) { // inline edit: update state without re-rendering so focus stays put
+    const item = cur.itinerary.days[active].items[el.dataset.i];
+    item[el.dataset.f] = el.dataset.f === "cost" ? Number(el.value) : el.value;
+    cur.dirty = true; updateTotals();
+  }
+});
+function updateTotals() {
+  const r = cur.request, total = dayTotal(cur.itinerary), b = app.querySelector(".budget");
+  b.classList.toggle("over", total > r.budget);
+  b.querySelector("strong").textContent = `${r.currency} ${money(total)}`;
+  b.querySelector("i").style.width = Math.min(100, total / r.budget * 100) + "%";
+  app.querySelector(".day-head .amount").textContent = `${r.currency} ${money(dayCost(cur.itinerary.days[active]))}`;
+  const s = app.querySelector('[data-act="save"]'); if (s) s.disabled = false;
+}
+app.addEventListener("change", e => { if (e.target.dataset.f === "type") cur.itinerary.days[active].items[e.target.dataset.i].type = e.target.value, render(); });
+
+app.addEventListener("submit", e => {
+  e.preventDefault();
+  if (daysBetween(form.start_date, form.end_date) > 14) return toast("Trips are limited to 14 days.");
+  busy = "gen"; render();
+  setTimeout(() => {
+    const req = {...form, interests: [...form.interests]};
+    cur = {id: "t" + Date.now(), title: `${req.destination} · ${req.start_date}`, request: req, itinerary: genItinerary(req), saved: false, share: Math.random().toString(36).slice(2, 10)};
+    busy = ""; active = 0; view = "trip"; render();
+  }, 1100);
+});
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act, v = b.dataset.v, i = Number(b.dataset.i);
+  if (a === "go-trips") { view = "trips"; render(); }
+  else if (a === "go-new") { view = "new"; render(); }
+  else if (a === "who") { form.traveler_type = v; form.group_size = v === "solo" ? 1 : v === "couple" ? 2 : Math.max(3, form.group_size); render(); }
+  else if (a === "interest") { const s = form.interests; form.interests = s.includes(v) ? s.filter(x => x !== v) : [...s, v]; render(); }
+  else if (a === "open") { const t = trips.find(x => x.id === b.dataset.id); cur = structuredClone(t); cur.saved = true; active = 0; view = "trip"; render(); }
+  else if (a === "del") { if (confirm("Delete this trip?")) { trips = trips.filter(x => x.id !== b.dataset.id); persist(); render(); } }
+  else if (a === "tab") { active = i; render(); }
+  else if (a === "rm") { cur.itinerary.days[active].items.splice(i, 1); cur.dirty = true; render(); }
+  else if (a === "add") { cur.itinerary.days[active].items.push({time:"18:00",type:"activity",title:"New stop",description:"",location:cur.request.destination,cost:0}); cur.dirty = true; render(); }
+  else if (a === "regen") {
+    const note = prompt("What should change on this day? (optional)", ""); if (note === null) return;
+    busy = "regen"; render();
+    setTimeout(() => { const day = cur.itinerary.days[active]; cur.itinerary.days[active] = genDay(cur.request, day.day, Math.floor(Math.random() * 5) + 1); cur.dirty = true; busy = ""; render(); toast("Day regenerated"); }, 800);
+  }
+  else if (a === "save") {
+    const copy = structuredClone(cur); delete copy.saved; delete copy.dirty;
+    const idx = trips.findIndex(x => x.id === copy.id); idx >= 0 ? trips[idx] = copy : trips.unshift(copy);
+    persist(); cur.saved = true; cur.dirty = false; render(); toast("Saved");
+  }
+  else if (a === "share") { const link = `${location.origin}${location.pathname}?join=${cur.share}`; (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => toast("Share link copied"), () => toast("Share link: " + link)); }
+  else if (a === "reset") { trips = [seed()]; persist(); view = "trips"; render(); toast("Demo reset"); }
+});
+render();
+</script>
+</body>
+</html>
